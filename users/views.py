@@ -13,30 +13,21 @@ def profile(request):
 
 
 @login_required
-def profile_edit(request, profile_id):
-    profile = Profile.objects.get(id=profile_id)
+def profile(request):
+    return render(request, 'users/profile.html')
+
+@login_required
+def profile_edit(request):
     error = False
+    oPro, created = Profile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
-        form = UpdateProfileForm(request.POST)
+        form = UpdateProfileForm(request.POST, instance=oPro)
         if form.is_valid():
             form.save()
-            return redirect('profile')
+            return redirect(reverse('home'))
     else:
-        form = UpdateProfileForm(instance=request.user)
+        form = UpdateProfileForm(instance=oPro)
     return render(request, 'users/profile_edit.html', {'form': form, 'error': error})
-
-
-def signup(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('home')
-    else:
-        form = SignUpForm()
-    return render(request, 'users/signup.html', {'form': form})
-
 
 def log_in(request):
     error = False
